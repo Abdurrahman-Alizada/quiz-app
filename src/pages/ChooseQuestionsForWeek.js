@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
+import axios from 'axios';
 
 const ChooseQuestionsForWeek = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -10,6 +11,19 @@ const ChooseQuestionsForWeek = () => {
     { title: "what do you know about china?" },
     { title: "what do you know about japan?" },
   ]);
+
+  useEffect(()=>{
+    axios.get('http://localhost/quizapp/api/read_question.php')
+    .then(function (response) {
+      setQuestions(response.data.records)
+      console.log(response.data.records);
+    })
+    .catch(function (error) {
+      // handle error
+      console.log(error);
+    })
+  }, [])
+
   const handleChange = (event) => {
     if (event.target.checked) {
       console.log("✅ Checkbox is checked");
@@ -47,7 +61,7 @@ const ChooseQuestionsForWeek = () => {
                 // for="country-option-1"
                 className="text-sm font-medium text-gray-900 ml-2 block"
               >
-               {Question.title}
+               {Question.question}
               </label>
 
             </div>

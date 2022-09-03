@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Axios from "axios";
 import { useNavigate } from "react-router-dom";
+import GoogleLogin from "react-google-login";
+import { gapi } from "gapi-script";
 
 import Navbar from "../components/Navbar";
 
@@ -11,23 +13,47 @@ function Signup() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [authenticated, setauthenticated] = useState(localStorage.getItem(localStorage.getItem("authenticated")|| false));
+  const [authenticated, setauthenticated] = useState(
+    localStorage.getItem(localStorage.getItem("authenticated") || false)
+  );
+  const clientId =
+    "620618098267-78q05o1sq26j7gvhp3jsm7eovut7jl7t.apps.googleusercontent.com";
+  const responseGoogle = (response) => {
+    console.log(response.profileObj);
+    setName(response.profileObj.name)
+    setEmail(response.profileObj.email)
+    setPassword(response.profileObj.googleId)
+    // handleSubmit()
+  };
+
+  useEffect(() => {
+    const initClient = () => {
+      gapi.client.init({
+        clientId: clientId,
+        scope: "",
+      });
+    };
+    gapi.load("client:auth2", initClient);
+  }, []);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log(name, email, password);
+    console.log("data in handlesubmit",name, email, password);
     Axios.post("http://localhost/quizapp/register.php/", {
       username: name,
       email: email,
       password: password,
-    }).then((data) => {
-      setauthenticated(true)
-      localStorage.setItem("authenticated", true);      
-      console.log("data is", data);
-      navigate("/")
-    }).catch((err)=>{
-      console.log("error is..", err)
-    });
+    })
+      .then((data) => {
+        setauthenticated(true);
+        localStorage.setItem("authenticated", true);
+        localStorage.setItem("isAdmin", true);
+        console.log("data is", data);
+        navigate("/");
+      })
+      .catch((err) => {
+        console.log("error is..", err);
+      });
   };
   return (
     <>
@@ -108,6 +134,23 @@ function Signup() {
           >
             Login
           </Link>
+        </div>
+
+        <div className="flex flex-col items-center justify-center pb-4 text-center bg-gray-50 dark:bg-gray-700">
+          <span className="text-sm text-gray-600 dark:text-gray-200 pb-2">
+            OR{" "}
+          </span>
+
+          <GoogleLogin
+            className="w-2/3 text-center flex justify-center mx-8"
+            clientId="620618098267-78q05o1sq26j7gvhp3jsm7eovut7jl7t.apps.googleusercontent.com"
+            buttonText="Login"
+            onSuccess={responseGoogle}
+            onFailure={responseGoogle}
+            cookiePolicy={"single_host_origin"}
+            isSignedIn={true}
+          />
+
         </div>
       </div>
     </>

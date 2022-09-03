@@ -1,47 +1,49 @@
-import React, {useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import Start from "../components/a/Start";
 import Quiz from "../components/a/Quiz";
 import Result from "../components/a/Result";
+import Navbar from "../components/Navbar";
+import Axios from "axios";
 
 function App() {
- 
   // timer
   const Ref = useRef(null);
-	const [timer, setTimer] = useState('00:00:00');
-	const getTimeRemaining = (e) => {
-		const total = Date.parse(e) - Date.parse(new Date());
-		const seconds = Math.floor((total / 1000) % 60);
-		const minutes = Math.floor((total / 1000 / 60) % 60);
-		return {
-			total, minutes, seconds
-		};
-	}
-	const startTimer = (e) => {
-		let { total, minutes, seconds }
-					= getTimeRemaining(e);
-		if (total >= 0) {
-
-			setTimer(
-				(minutes > 9 ? minutes : '0' + minutes) + ':'
-				+ (seconds > 9 ? seconds : '0' + seconds)
-			)
-		}
-	}
-	const clearTimer = (e) => {
-		setTimer('00:10');
-		if (Ref.current) clearInterval(Ref.current);
-		const id = setInterval(() => {
-			startTimer(e);
-		}, 1000)
+  const [timer, setTimer] = useState("00:00:00");
+  const getTimeRemaining = (e) => {
+    const total = Date.parse(e) - Date.parse(new Date());
+    const seconds = Math.floor((total / 1000) % 60);
+    const minutes = Math.floor((total / 1000 / 60) % 60);
+    return {
+      total,
+      minutes,
+      seconds,
+    };
+  };
+  const startTimer = (e) => {
+    let { total, minutes, seconds } = getTimeRemaining(e);
+    if (total >= 0) {
+      setTimer(
+        (minutes > 9 ? minutes : "0" + minutes) +
+          ":" +
+          (seconds > 9 ? seconds : "0" + seconds)
+      );
+    }
+  };
+  const clearTimer = (e) => {
+    setTimer("00:10");
+    if (Ref.current) clearInterval(Ref.current);
+    const id = setInterval(() => {
+      startTimer(e);
+    }, 1000);
     // const id =
-		Ref.current = id;
-	}
+    Ref.current = id;
+  };
 
-	const getDeadTime = () => {
-		let deadline = new Date();
-		deadline.setSeconds(deadline.getSeconds() + 10);
-		return deadline;
-	}
+  const getDeadTime = () => {
+    let deadline = new Date();
+    deadline.setSeconds(deadline.getSeconds() + 10);
+    return deadline;
+  };
 
   // timer end
   const questions = [
@@ -157,19 +159,18 @@ function App() {
     let counter = 0;
     const interval = setInterval(() => {
       if (counter >= 10) {
-        nextQuestion()
+        nextQuestion();
         clearInterval(interval);
-     console.log("hello if")
+        // console.log("hello if");
       } else {
-     console.log("hello else")
+        // console.log("hello else");
 
         // setCount(count => count + 1);
         counter++; // local variable that this closure will see
       }
     }, 1000);
-    return () => clearInterval(interval); 
+    return () => clearInterval(interval);
   }, [questionIndex]);
-
 
   // Display Controlling States
   const [showStart, setShowStart] = useState(true);
@@ -177,7 +178,13 @@ function App() {
   const [showResult, setShowResult] = useState(false);
 
   useEffect(() => {
-    setQuizs(questions);
+     Axios.get(
+      "http://localhost/quizapp/api/active_question.php"
+    ).then((response)=>{
+    
+      console.log("response is..", response.data.records)
+      setQuizs(response.data.records);
+    });
   }, []);
 
   // Set a Single Question
@@ -190,9 +197,13 @@ function App() {
 
   // Start Quiz
   const startQuiz = () => {
-    setShowStart(false);
-    setShowQuiz(true);
-    clearTimer(getDeadTime())
+    if(quizs.length >= 1){
+      setShowStart(false);
+      setShowQuiz(true);
+      clearTimer(getDeadTime());
+    }else{
+    alert("No quiz today")
+    }
   };
 
   // Check Answer
@@ -202,10 +213,10 @@ function App() {
       setSelectedAnswer(selected);
 
       if (selected === question.answer) {
-        event.target.classList.add("bg-success");
+        event.target.classList.add("bg-green-300");
         setMarks(marks + 5);
       } else {
-        event.target.classList.add("bg-danger");
+        event.target.classList.add("bg-red-300");
       }
     }
   };
@@ -214,13 +225,15 @@ function App() {
   const nextQuestion = () => {
     setCorrectAnswer("");
     setSelectedAnswer("");
-    const wrongBtn = document.querySelector("button.bg-danger");
-    wrongBtn?.classList.remove("bg-danger");
-    const rightBtn = document.querySelector("button.bg-success");
-    rightBtn?.classList.remove("bg-success");
+    const wrongBtn = document.querySelector("div.bg-red-300");
+    wrongBtn?.classList.remove("bg-red-300");
+    console.log("wrong buton..", wrongBtn)
+    const rightBtn = document.querySelector("div.bg-green-300");
+    rightBtn?.classList.remove("bg-green-300");
+    console.log("right buton..", rightBtn)
+
     setQuestionIndex(questionIndex + 1);
     clearTimer(getDeadTime());
-
   };
 
   // Show Result
@@ -228,6 +241,20 @@ function App() {
     setShowResult(true);
     setShowStart(false);
     setShowQuiz(false);
+  handleSubmit()
+
+  };
+
+  const handleSubmit = (event) => {
+    // event.preventDefault();
+    Axios.post("http://localhost/quizapp/api/send_to_quiz.php", {
+     "score":"0",
+     "user_name":"rahman" 
+  }).then((data) => {
+      console.log("data is", data);
+    }).catch((err)=>{
+      console.log("error is..", err)
+    });
   };
 
   // Start Over
@@ -239,16 +266,17 @@ function App() {
     setSelectedAnswer("");
     setQuestionIndex(0);
     setMarks(0);
-    clearTimer(getDeadTime())
+    clearTimer(getDeadTime());
 
-    const wrongBtn = document.querySelector("button.bg-danger");
-    wrongBtn?.classList.remove("bg-danger");
-    const rightBtn = document.querySelector("button.bg-success");
-    rightBtn?.classList.remove("bg-success");
+    const wrongBtn = document.querySelector("button.bg-red-300");
+    wrongBtn?.classList.remove("bg-red-300");
+    const rightBtn = document.querySelector("button.bg-green-300");
+    rightBtn?.classList.remove("bg-green-300");
   };
 
   return (
     <>
+      <Navbar />
       {/* Welcome Page */}
       <Start startQuiz={startQuiz} showStart={showStart} />
 
@@ -263,8 +291,8 @@ function App() {
         questionIndex={questionIndex}
         nextQuestion={nextQuestion}
         showTheResult={showTheResult}
-       timer={timer}
-  />
+        timer={timer}
+      />
 
       {/* Result Page */}
       <Result

@@ -10,8 +10,14 @@ const Quiz = ({
   questionIndex,
   nextQuestion,
   showTheResult,
-  timer
+  timer,
 }) => {
+  const options = [
+    question.choice_1,
+    question.choice_2,
+    question.choice_3,
+    question.choice_4,
+  ];
   return (
     <div
       style={{ display: `${showQuiz ? "block" : "none"}` }}
@@ -21,9 +27,14 @@ const Quiz = ({
         <div className="lg:flex w-1/2 mx-auto my-10 bg-white rounded-lg ">
           <div className="bg-white rounded-lg shadow max-w-full mx-5 sm:w-full sm:mx-auto sm:overflow-hidden">
             <div className="px-4 flex justify-between py-6 border-t-2 border-gray-200 bg-gray-50 sm:px-10">
-              <p className="text-xl font-bold leading-5 text-gray-500">Q# {question.id}</p>
-
-              <p className="text-xl font-bold leading-5 text-gray-500">  {timer} </p>
+              {/* <p className="text-xl font-bold leading-5 text-gray-500">Q# {question.id}</p> */}
+              <h5 className="text-xl font-bold leading-5 text-green-500">
+                {quizs.indexOf(question) + 1} / {quizs?.length}
+              </h5>
+              <p className="text-xl font-bold leading-5 text-gray-500">
+                {" "}
+                {timer}{" "}
+              </p>
             </div>
             <div className="px-4 py-8 sm:px-10">
               <div className="max-w-7xl  text-gray-800 dark:text-white md:text-2xl">
@@ -33,33 +44,21 @@ const Quiz = ({
                 >
                   <div className="flex justify-between md:p-3">
                     <h5 className="mb-2 font-normal ">{question?.question}</h5>
-                    <h5
-                      style={{
-                        color: "#60d600",
-                        width: "100px",
-                        textAlign: "right",
-                      }}
-                    >
-                      {quizs.indexOf(question) + 1} / {quizs?.length}
-                    </h5>
                   </div>
                   <div className="">
-                    {question?.options?.map((item, index) => (
-                      <span  onClick={(event) => checkAnswer(event, item)} key={index}>
-                        <div className="container flex flex-col w-full ">
-                            <li className={`border-gray-400 flex flex-row mb-2 ${correctAnswer === item && 'bg-green-300'}`} >
-                              <div className="shadow border select-none cursor-pointer dark:bg-gray-800 rounded-md flex flex-1 items-center p-4">
-                               
-                                <div className="flex-1 pl-1 md:mr-16">
-                                  <div className="font-sm dark:text-white">
-                                    {item}
-                                  </div>
-
-                                </div>
-                                
+                    {options?.map((item, index) => (
+                      <span
+                        onClick={(event) => checkAnswer(event, item)}
+                        key={index}
+                        className="border-gray-400 flex flex-row mb-2"  >
+                        <div className="container flex flex-col w-full rounded-md ">
+                          <li className="border-gray-400 flex flex-row mb-2">
+                            <div className="shadow border select-none cursor-pointer dark:bg-gray-800 rounded-md flex flex-1 items-center p-4">
+                              <div className="font-sm dark:text-white">
+                                {item}
                               </div>
-                            </li>
-
+                            </div>
+                          </li>
                         </div>
                       </span>
                     ))}
@@ -75,8 +74,8 @@ const Quiz = ({
                     </button>
                   ) : (
                     <button
-                    className="py-2 px-4  bg-green-600 hover:bg-green-700 focus:ring-green-500 focus:ring-offset-indigo-200 text-white w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2  rounded-lg"
-                    onClick={showTheResult}
+                      className="py-2 px-4  bg-green-600 hover:bg-green-700 focus:ring-green-500 focus:ring-offset-indigo-200 text-white w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2  rounded-lg"
+                      onClick={showTheResult}
                       disabled={!selectedAnswer}
                     >
                       Show Result
@@ -84,7 +83,6 @@ const Quiz = ({
                   )}
                 </div>
               </div>
-
             </div>
           </div>
         </div>
