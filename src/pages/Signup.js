@@ -19,10 +19,10 @@ function Signup() {
   const clientId =
     "620618098267-78q05o1sq26j7gvhp3jsm7eovut7jl7t.apps.googleusercontent.com";
   const responseGoogle = (response) => {
-    console.log(response.profileObj);
-    setName(response.profileObj.name)
-    setEmail(response.profileObj.email)
-    setPassword(response.profileObj.googleId)
+    console.log(response?.profileObj);
+    setName(response?.profileObj.name)
+    setEmail(response?.profileObj.email)
+    setPassword(response?.profileObj.googleId)
     // handleSubmit()
   };
 
@@ -46,8 +46,8 @@ function Signup() {
     })
       .then((data) => {
         setauthenticated(true);
-        localStorage.setItem("authenticated", true);
-        localStorage.setItem("isAdmin", true);
+        localStorage.setItem("authenticated", 1);
+        localStorage.setItem("isAdmin", 1);
         console.log("data is", data);
         navigate("/");
       })

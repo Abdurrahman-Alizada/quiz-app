@@ -1,18 +1,68 @@
 import React, {useState, useEffect} from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import Axios from "axios";
+import { useNavigate } from "react-router-dom";
+import GoogleLogin from "react-google-login";
+import { gapi } from "gapi-script";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 function Signin() {
-  const [name, setName] = useState("");
+  const notify = () => toast("Invalid email or password !");
+
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const handleSubmit = () =>{
-  
-  }
+
+  const clientId =
+  "620618098267-78q05o1sq26j7gvhp3jsm7eovut7jl7t.apps.googleusercontent.com";
+const responseGoogle = (response) => {
+  console.log(response?.profileObj);
+  setEmail(response?.profileObj.email)
+  setPassword(response?.profileObj.googleId)
+  // handleSubmit()
+};
+
+useEffect(() => {
+  const initClient = () => {
+    gapi.client.init({
+      clientId: clientId,
+      scope: "",
+    });
+  };
+  gapi.load("client:auth2", initClient);
+}, []);
+
+const handleSubmit = (event) => {
+  event.preventDefault();
+  Axios.post("http://localhost/quizapp/login.php/", {
+    email: email,
+    password: password,
+  })
+    .then((data) => {
+      if(data.data.status == 422 || data.data.status == 422){
+       notify()
+      }
+      else{
+      localStorage.setItem("authenticated", 1);
+      localStorage.setItem("isAdmin", 1);
+      console.log("data in login is..", data.data);
+      navigate("/");
+      }
+    })
+    .catch((err) => {
+      console.log("error is..", err);
+    });
+};
+
   return (
   <> 
   <Navbar />
    <div className="w-full max-w-sm mt-32 mx-auto overflow-hidden bg-white rounded-lg shadow-md dark:bg-gray-800">
+   <ToastContainer />
+      
       <div className="px-6 py-4">
         <h2 className="text-3xl font-bold text-center text-gray-700 dark:text-white">
           Your Brand Name
@@ -32,6 +82,7 @@ function Signin() {
               className="block w-full px-4 py-2 mt-2 text-gray-700 placeholder-gray-500 bg-white border rounded-md dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-opacity-40 focus:outline-none focus:ring focus:ring-blue-300"
               type="email"
               value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="Email Address"
               aria-label="Email Address"
             />
@@ -42,6 +93,7 @@ function Signin() {
               className="block w-full px-4 py-2 mt-2 text-gray-700 placeholder-gray-500 bg-white border rounded-md dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-opacity-40 focus:outline-none focus:ring focus:ring-blue-300"
               type="password"
               value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
               aria-label="Password"
             />

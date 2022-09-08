@@ -2,11 +2,15 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import Navbar from "../components/Navbar";
 
 function Signup() {
   const navigate = useNavigate();
+
+  const notify = () => toast("Question added successfully !");
 
   const [question, setQuesion] = useState("");
   const [option1, setOption1] = useState("");
@@ -29,6 +33,7 @@ function Signup() {
     "choice_4":option4,
     "answer":answer
     }).then((data) => {
+      notify()
       console.log("data is", data);
     }).catch((err)=>{
       console.log("error is..", err)
@@ -39,7 +44,8 @@ function Signup() {
       <Navbar />
       <div className="w-full max-w-sm mt-32 mx-auto overflow-hidden bg-white rounded-lg shadow-md dark:bg-gray-800">
         <div className="px-6 py-4">
-
+        <ToastContainer />
+          
           <h3 className="mt-1 text-xl font-medium text-center text-gray-600 dark:text-gray-200">
             Please enter below informations
           </h3>

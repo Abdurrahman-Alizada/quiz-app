@@ -1,40 +1,57 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
+import { ToastContainer, toast } from 'react-toastify';
 import axios from 'axios';
 
 const ChooseQuestionsForWeek = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [Questions, setQuestions] = useState([
-    { title: "what do you know about pakistan?" },
-    { title: "what do you know about india?" },
-    { title: "what do you know about afghanistan?" },
-    { title: "what do you know about china?" },
-    { title: "what do you know about japan?" },
-  ]);
+  const [Questions, setQuestions] = useState([]);
 
   useEffect(()=>{
     axios.get('http://localhost/quizapp/api/read_question.php')
     .then(function (response) {
-      setQuestions(response.data.records)
-      console.log(response.data.records);
+      setQuestions(response.data)
+      console.log(response.data);
     })
     .catch(function (error) {
       // handle error
       console.log(error);
     })
-  }, [])
+  }, [isSubscribed])
 
-  const handleChange = (event) => {
-    if (event.target.checked) {
-      console.log("✅ Checkbox is checked");
+  
+  const notify = () => toast("Question updated successfully !");
+
+  const handleChange = (event,id, index) => {
+    event.preventDefault();
+    console.log("ajdk",Questions[index])
+    if (Questions[index]?.is_active == 1 ) {
+    axios.post("http://localhost/quizapp/api/update_is_active_question.php", {
+        "id":id,
+        "is_active":0
+     }).then((data) => {
+      notify()
+      console.log("data is", data);
+    }).catch((err)=>{
+      console.log("error is..", err)
+    });
     } else {
-      console.log("⛔️ Checkbox is NOT checked");
+      axios.post("http://localhost/quizapp/api/update_is_active_question.php", {
+        "id":id,
+        "is_active":1
+     }).then((data) => {
+      notify()
+    }).catch((err)=>{
+      console.log("error is..", err)
+    });
     }
-    setIsSubscribed((current) => !current);
+   setIsSubscribed(!isSubscribed)
   };
   return (
     <section className="text-gray-600 body-font">
       <Navbar />
+      <ToastContainer />
+
       <div className="container px-5 py-24 mx-auto">
         <div className="text-center mb-20">
           <h1 className="sm:text-3xl text-2xl font-medium text-center title-font text-gray-900 mb-4">
@@ -44,36 +61,47 @@ const ChooseQuestionsForWeek = () => {
         <div className="flex flex-wrap lg:w-4/5 sm:mx-auto sm:mb-2 -mx-2">
          
          {
+          Questions.length > 0 ?
             Questions.map((Question, index)=>(
 
           <div key={index} className="p-2 sm:w-1/2 w-full">
           
+              <div>
             <div className="bg-gray-100 rounded flex p-4 h-full items-center">
               <input
                 value={isSubscribed}
-                onChange={handleChange}
+                // checked={true}
+                checked={Question?.is_active == 1 ? true : false}
+                onChange={(e) => handleChange(e, Question.id, index)}
                 id="subscribe"
                 name="subscribe"
                 type="checkbox"
                 className="h-4 w-4 border-gray-300 focus:ring-2 focus:ring-blue-300"
               />
               <label
-                // for="country-option-1"
                 className="text-sm font-medium text-gray-900 ml-2 block"
               >
                {Question.question}
               </label>
-
+              </div>
+              <div className=" px-6">
+            <p>1. {Question.choice_1}</p>
+            <p>2. {Question.choice_2}</p>
+            <p>3. {Question.choice_3}</p>
+            <p>4. {Question.choice_4}</p>
+            <p className="text-green-400">2. {Question.answer}</p>
+            
             </div>
-          
+            </div>
+
+
           </div>
             ))
+            :<h1>No question</h1>
          }
 
         </div>
-        <button className="flex mx-auto mt-16 text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">
-          Button
-        </button>
+
       </div>
     </section>
   );

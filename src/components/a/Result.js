@@ -1,7 +1,8 @@
 import React from 'react';
-
+import { useNavigate } from 'react-router-dom';
 const Result = ({ showResult, quizs, marks, startOver }) => {
-    return (
+  const navigate = useNavigate()
+  return (
 
 <div style={{ display: `${showResult ? "block" : "none"}` }}
  className=" px-6 py-16 mx-auto  text-center">
@@ -18,7 +19,7 @@ const Result = ({ showResult, quizs, marks, startOver }) => {
     <p className="my-4 text-center text-sm text-gray-500">{marks > (quizs.length * 5 / 2) ? 'Awesome!' : 'Oops!'} </p>
     <p className="my-4 text-center text-sm text-gray-500">Your score is {marks} out of {quizs.length * 5} </p>
     <div className="space-x-4 bg-gray-100 py-4 text-center">
-      <button className="inline-block rounded-md bg-green-500 px-6 py-2 font-semibold text-green-100 shadow-md duration-75 hover:bg-green-400">Go to main page</button>
+      <button onClick={()=>navigate('/')} className="inline-block rounded-md bg-green-500 px-6 py-2 font-semibold text-green-100 shadow-md duration-75 hover:bg-green-400">Go to main page</button>
     </div>
   </div>
 

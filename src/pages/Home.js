@@ -1,12 +1,28 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import Hero from "../components/Hero";
 import Allquizes from "./Allquizes";
+import Singin from "./Signin";
 function Home() {
+  const navigate = useNavigate();
+  const [isAuthenticated, setisAuthenticated] = useState(0);
+  const [isAdmin, setisAdmin] = useState(0);
+
+  useEffect(() => {
+    console.log("auth home", localStorage.getItem("authenticated"))
+    console.log("isAdmin", localStorage.getItem("isAdmin"))
+   setisAuthenticated(localStorage.getItem("authenticated"));
+   setisAdmin(localStorage.getItem("isAdmin"));
+ }, [isAuthenticated]);
+
+
   return (
     <div>
-      <Navbar />
-      <Allquizes />
+   
+       { isAuthenticated == 0 ? <></> : <Navbar /> } 
+      { isAuthenticated == 0 ? <Singin /> : <Allquizes /> 
+      }
+
     </div>
   );
 }
